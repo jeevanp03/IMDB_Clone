@@ -1,18 +1,21 @@
-import * as React from 'react';
-import Review from './Review';
-
-
+import React from "react";
+import { BrowserRouter as Router, Route, Routes } from "react-router-dom";
+import Landing from "../Landing";
+import Review from "../Review";
+import Search from "../Search";
+import MyPage from "../MyPage";
 const App = () => {
-
-
   return (
-    <div>
-        <h1>MSci 245 - D1 template </h1>
-      {/* Render <Review /> child component */}
-
-
-    </div>
+    <Router>
+      <div>
+        <Routes>
+          <Route path="/Review" element={<Review />} />
+          <Route path="/Search" element={<Search />} />
+          <Route path="/Reccomendation" element={<MyPage />} />
+          <Route path="/" element={<Landing />} />
+        </Routes>
+      </div>
+    </Router>
   );
-}
-
+};
 export default App;

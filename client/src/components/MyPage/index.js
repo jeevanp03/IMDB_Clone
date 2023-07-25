@@ -10,15 +10,15 @@ const darkTheme = createTheme({
   },
 });
 
-const Landing = () => {
-  return (
-    <ThemeProvider theme={darkTheme}>
-      <CssBaseline />
-      <Grid container spacing={2} justify="center" alignItems="center">
-        <NavBar />
-      </Grid>
-    </ThemeProvider>
-  );
-};
+const MyPage = () => {
+    return (
+        <ThemeProvider theme={darkTheme}>
+          <CssBaseline />
+          <Grid container spacing={2} justify="center" alignItems="center">
+            <NavBar />
+          </Grid>
+        </ThemeProvider>
+      );
+}
 
-export default Landing;
+export default MyPage;
