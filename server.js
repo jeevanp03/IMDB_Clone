@@ -87,5 +87,54 @@ app.post("/api/sendReview", (req, res) => {
   connection.end();
 });
 
+app.post('/api/searchMovie', (req, res) => {
+	let connection = mysql.createConnection(config);
+	let searchSettings = req.body.searchSettings;
+	let userID = req.body.userID;
+	console.log("Search Settings", searchSettings)
+	let data;
+	let sql;
+  let length = searchSettings.length;
+  if(length === 1){
+    var searchTerm = searchSettings[0].searchTerm;
+    var searchSetting = searchSetting[0].searchSetting;
+    sql = ``;
+    data = [searchTerm, searchSetting]
+  }else if(length === 2){
+    var searchTerms = [];
+    var settings = [];
+    sql = ``;
+    data = [searchTerm[0], searchSetting[0], searchTerm[1], searchSetting[1]]
+  }else{
+    var searchTerms = [];
+    var settings = [];
+    sql = ``;
+    data = [searchTerm[0], searchSetting[0], searchTerm[1], searchSetting[1], searchTerm[2], searchSetting[2]]
+  }
+	// if(caloriesSearchTerm.trim() > 0){
+	// 	sql = `SELECT * FROM recipe WHERE calories <= ?`;
+	// 	data = [caloriesSearchTerm];
+	// }else{
+	// 	sql = 'SELECT * FROM recipe'
+	// 	data = [recipeID]
+	// }
+  	
+  	console.log(sql);
+  	 
+  	console.log(data);
+
+  	connection.query(sql, data, (error, results, fields) => {
+    	if (error) {
+      		return console.error(error.message);
+    	}
+
+    	let string = JSON.stringify(results);
+    	//let obj = JSON.parse(string);
+    	res.send({ express: string });
+    	console.log(typeof results);
+  	});
+  	connection.end();
+});
+
 app.listen(port, () => console.log(`Listening on port ${port}`)); //for the dev version
 //app.listen(port, '172.31.31.77'); //for the deployed version, specify the IP address of the server

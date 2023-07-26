@@ -30,6 +30,40 @@ const Search = () => {
   const [searchTerms, setSearchTerms] = React.useState([]);
   const [capturedSettings, setCapturedSettings] = React.useState([]);
 
+  const [searchedMovies, setSearchedMovies] = React.useState([]);
+
+  const handleMovieSearch = () => {
+    callApiSearchMovie()
+      .then(res => {
+        console.log("callApiFindRecipe returned: ", res)
+        var parsed = JSON.parse(res.express);
+        console.log("callApiFindRecipe parsed: ", parsed[0])
+        setSearchedMovies(parsed);
+      });
+  }
+
+  const callApiSearchMovie = async () => {
+
+    const url = serverURL + "/api/searchMovie";
+    console.log(url);
+    console.log("Search Settings:", searchSettings);
+
+    const response = await fetch(url, {
+      method: "POST",
+      headers: {
+        "Content-Type": "application/json",
+      },
+      body: JSON.stringify({
+        searchSettings : searchSettings
+      })
+    });
+    const body = await response.json();
+    if (response.status !== 200) throw Error(body.message);
+    console.log("Found movies ", body);
+    return body;
+  }
+
+
   const handleInputSearchSettings = (searchTerm, searchSetting, index) => {
     setSearchSettings((prevSettings) => {
       const updatedSettings = [...prevSettings];
@@ -87,10 +121,21 @@ const Search = () => {
     });
   };
 
+  const removeValidation = (index) => {
+    setValidDropDown((prevValids) => {
+      const updatedValid = prevValids.filter((_, i) => i !== index);
+      return updatedValid.map((setting, i) => ({
+        ...setting,
+      }));
+    });
+  };
+
+
   const handleRemoveSearchBar = (index) => {
     if (numSearchBars > 1) {
       setNumSearchBars((prevNum) => prevNum - 1);
       removeSearchSetting(index);
+      removeValidation(index)
     }
   };
 
@@ -161,6 +206,7 @@ const Search = () => {
       console.log("invalid search");
     } else {
       console.log("searching for movies");
+      handleMovieSearch()
     }
   }, [isValidDropDown]);
 
@@ -191,10 +237,27 @@ const Search = () => {
             {showSearch && (
               <>
                 {searchBars}
-                {numSearchBars < 3 && (
+                <Grid container justifyContent="space-between" alignItems="center">
+                  {numSearchBars < 3 && (
+                    <Button
+                      variant="contained"
+                      onClick={handleAddSearchBar}
+                      sx={{
+                        backgroundColor: "#555",
+                        "&:hover": {
+                          backgroundColor: "#777",
+                        },
+                        color: "white",
+                        boxShadow: "0 3px 5px 2px rgba(0, 0, 0, .5)",
+                        border: "1px solid #444",
+                      }}
+                    >
+                      Add Search Criteria +
+                    </Button>
+                  )}
                   <Button
                     variant="contained"
-                    onClick={handleAddSearchBar}
+                    onClick={handleSearch}
                     sx={{
                       backgroundColor: "#555",
                       "&:hover": {
@@ -205,24 +268,9 @@ const Search = () => {
                       border: "1px solid #444",
                     }}
                   >
-                    Add Search Criteria +
+                    Search All
                   </Button>
-                )}
-                <Button
-                  variant="contained"
-                  onClick={handleSearch}
-                  sx={{
-                    backgroundColor: "#555",
-                    "&:hover": {
-                      backgroundColor: "#777",
-                    },
-                    color: "white",
-                    boxShadow: "0 3px 5px 2px rgba(0, 0, 0, .5)",
-                    border: "1px solid #444",
-                  }}
-                >
-                  Search All
-                </Button>
+                </Grid>
               </>
             )}
           </Paper>
