@@ -12,7 +12,7 @@ import {
 import DeleteIcon from "@mui/icons-material/Delete";
 import Typography from "@mui/material/Typography";
 
-const SearchBar = ({ onRemove, index,  searchSettings, handleChange, setSearchTerms, setCapturedSettings }) => {
+const SearchBar = ({ onRemove, index, setSearchTerms, setCapturedSettings, isValid }) => {
   const [searchTerm, setSearchTerm] = React.useState("");
   const [searchSetting, setSearchSetting] = React.useState("");
 
@@ -38,16 +38,14 @@ const SearchBar = ({ onRemove, index,  searchSettings, handleChange, setSearchTe
   React.useEffect(() => {
     console.log("searchTerm:", searchTerm);
     console.log("searchSetting:", searchSetting)
-    if(searchSetting.trim().length > 0){
+    
       setSearchTerms((prevSettings) => {
         const updatedTerms = [...prevSettings]
         updatedTerms[index] = searchTerm
         console.log("updated terms: " + updatedTerms)
         return updatedTerms
       })
-    }else{
-      console.log("dropdown is empty")
-    }
+    
     
   }, [searchTerm]);
 
@@ -68,12 +66,12 @@ const SearchBar = ({ onRemove, index,  searchSettings, handleChange, setSearchTe
             <MenuItem value="Actor Name">Actor Name</MenuItem>
             <MenuItem value="Director Name">Director Name</MenuItem>
           </Select>
-          {/*{isValid === false && (
+          {isValid === false && (
             <Typography variant="caption" color="error">
               Select Valid Option From DropDown
             </Typography>
           )}
-          {isValid === true && isValidSB === true && (
+          {/*{isValid === true && isValidSB === true && (
             <Typography variant="caption" color="success">
               DropDown Selection is Valid
             </Typography>
