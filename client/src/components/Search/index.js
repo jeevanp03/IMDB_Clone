@@ -17,13 +17,18 @@ const Search = () => {
   const [showSearch, setShowSearch] = React.useState(false);
   const [numSearchBars, setNumSearchBars] = React.useState(1);
   const [searchSettings, setSearchSettings] = React.useState([
-    { byMovieName: false, byActorName: false, byDirectorName: false, searchTerm: ' ' },
+    {
+      byMovieName: false,
+      byActorName: false,
+      byDirectorName: false,
+      searchTerm: " ",
+    },
   ]);
 
   const [isValidDropDown, setValidDropDown] = React.useState([]);
 
-  const [searchTerms, setSearchTerms] = React.useState([])
-  const [capturedSettings, setCapturedSettings] = React.useState([])
+  const [searchTerms, setSearchTerms] = React.useState([]);
+  const [capturedSettings, setCapturedSettings] = React.useState([]);
 
   const handleInputSearchSettings = (searchTerm, searchSetting, index) => {
     setSearchSettings((prevSettings) => {
@@ -38,18 +43,23 @@ const Search = () => {
     });
   };
 
-  React.useEffect(()=>{
-    for(let i = 0; i < searchSettings.length; i++){
-      var searchTerm = searchTerms[i]
-      var capturedSetting = capturedSettings[i]
-      handleInputSearchSettings(searchTerm, capturedSetting, i)
+  React.useEffect(() => {
+    for (let i = 0; i < searchSettings.length; i++) {
+      var searchTerm = searchTerms[i];
+      var capturedSetting = capturedSettings[i];
+      handleInputSearchSettings(searchTerm, capturedSetting, i);
     }
-  }, [searchTerms, capturedSettings, searchSettings.length])
+  }, [searchTerms, capturedSettings, searchSettings.length]);
 
   const addSearchSetting = () => {
     setSearchSettings((prevSettings) => [
       ...prevSettings,
-      { byMovieName: false, byActorName: false, byDirectorName: false, searchTerm: "" },
+      {
+        byMovieName: false,
+        byActorName: false,
+        byDirectorName: false,
+        searchTerm: "",
+      },
     ]);
   };
 
@@ -85,59 +95,67 @@ const Search = () => {
   };
 
   const handleSearch = () => {
-    if(searchSettings.length === 1){
-      console.log("length is 1")
-      const { byMovieName, byActorName, byDirectorName, searchTerm } = searchSettings[0];
-      const selection = [byMovieName, byActorName, byDirectorName]
-    if (!byMovieName && !byActorName && !byDirectorName && searchTerm.trim().length === 0) {
-      setValidDropDown((prevValid) => {
-        const updatedValid = [...prevValid];
-        updatedValid[0] = true;
-        console.log("updated validation:", updatedValid);
-        console.log("searching for all movies");
-        return updatedValid;
-      });
-    }else if(selection.includes(true, 0) && searchTerm.trim().length > 0){
-      console.log("typed search", searchTerm)
-      setValidDropDown((prevValid) => {
-        const updatedValid = [...prevValid];
-        updatedValid[0] = true;
-        console.log("updated validation:", updatedValid);
-        return updatedValid;
-      });
-    }else if(selection.includes(true, 0) && searchTerm.trim().length === 0){
-      setValidDropDown((prevValid) => {
-        const updatedValid = [...prevValid];
-        updatedValid[0] = true;
-        console.log("updated validation:", updatedValid);
-        console.log("searching for all movies");
-        return updatedValid;
-      });
-    }else{
-      console.log("not valid")
-      setValidDropDown((prevValid) => {
-        const updatedValid = [...prevValid];
-        updatedValid[0] = false;
-        console.log("updated validation:", updatedValid);
-        return updatedValid;
-      });
-    }
-    }else{
-      searchSettings.map((obj, index)=>{
-        var selections = [obj.byMovieName, obj.byActorName, obj.byDirectorName]
-        console.log("typed search", obj.searchTerm)
-        
-          setValidDropDown((prevValid) => {
-            const updatedValid = [...prevValid]
-            updatedValid[index] = selections.includes(true, 0)
-            console.log("updated validation:", updatedValid)
-            return updatedValid
-          })
-      })
-    }
+    if (searchSettings.length === 1) {
+      console.log("length is 1");
+      const { byMovieName, byActorName, byDirectorName, searchTerm } =
+        searchSettings[0];
+      const selection = [byMovieName, byActorName, byDirectorName];
+      if (
+        !byMovieName &&
+        !byActorName &&
+        !byDirectorName &&
+        searchTerm.trim().length === 0
+      ) {
+        setValidDropDown((prevValid) => {
+          const updatedValid = [...prevValid];
+          updatedValid[0] = true;
+          console.log("updated validation:", updatedValid);
+          console.log("searching for all movies");
+          return updatedValid;
+        });
+      } else if (selection.includes(true, 0) && searchTerm.trim().length > 0) {
+        console.log("typed search", searchTerm);
+        setValidDropDown((prevValid) => {
+          const updatedValid = [...prevValid];
+          updatedValid[0] = true;
+          console.log("updated validation:", updatedValid);
+          return updatedValid;
+        });
+      } else if (
+        selection.includes(true, 0) &&
+        searchTerm.trim().length === 0
+      ) {
+        setValidDropDown((prevValid) => {
+          const updatedValid = [...prevValid];
+          updatedValid[0] = true;
+          console.log("updated validation:", updatedValid);
+          console.log("searching for all movies");
+          return updatedValid;
+        });
+      } else {
+        console.log("not valid");
+        setValidDropDown((prevValid) => {
+          const updatedValid = [...prevValid];
+          updatedValid[0] = false;
+          console.log("updated validation:", updatedValid);
+          return updatedValid;
+        });
+      }
+    } else {
+      searchSettings.map((obj, index) => {
+        var selections = [obj.byMovieName, obj.byActorName, obj.byDirectorName];
+        console.log("typed search", obj.searchTerm);
 
+        setValidDropDown((prevValid) => {
+          const updatedValid = [...prevValid];
+          updatedValid[index] = selections.includes(true, 0);
+          console.log("updated validation:", updatedValid);
+          return updatedValid;
+        });
+      });
+    }
   };
-  
+
   React.useEffect(() => {
     if (isValidDropDown.includes(false, 0)) {
       console.log("invalid search");
@@ -150,10 +168,10 @@ const Search = () => {
     <SearchBar
       key={index}
       index={index}
-      setSearchTerms = {setSearchTerms}
-      setCapturedSettings = {setCapturedSettings}
+      setSearchTerms={setSearchTerms}
+      setCapturedSettings={setCapturedSettings}
       searchSettings={searchSettings}
-      isValid = {isValidDropDown[index]}
+      isValid={isValidDropDown[index]}
       onRemove={() => handleRemoveSearchBar(index)}
     />
   ));
@@ -163,7 +181,12 @@ const Search = () => {
       <CssBaseline />
       <Grid container spacing={2} justify="center" alignItems="center">
         <NavBar />
-        <Grid item xs={20} md={12} sx={{ marginLeft: "6px", marginRight: "6px" }}>
+        <Grid
+          item
+          xs={20}
+          md={12}
+          sx={{ marginLeft: "6px", marginRight: "6px" }}
+        >
           <Paper elevation={1} sx={{ padding: 2 }}>
             {showSearch && (
               <>

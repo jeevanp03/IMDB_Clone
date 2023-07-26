@@ -12,7 +12,13 @@ import {
 import DeleteIcon from "@mui/icons-material/Delete";
 import Typography from "@mui/material/Typography";
 
-const SearchBar = ({ onRemove, index, setSearchTerms, setCapturedSettings, isValid }) => {
+const SearchBar = ({
+  onRemove,
+  index,
+  setSearchTerms,
+  setCapturedSettings,
+  isValid,
+}) => {
   const [searchTerm, setSearchTerm] = React.useState("");
   const [searchSetting, setSearchSetting] = React.useState("");
 
@@ -28,32 +34,32 @@ const SearchBar = ({ onRemove, index, setSearchTerms, setCapturedSettings, isVal
   React.useEffect(() => {
     console.log("searchSetting:", searchSetting);
     setCapturedSettings((prevCaptured) => {
-      const updatedCaptured = [...prevCaptured]
-      updatedCaptured[index] = searchSetting
-      console.log("updated settings: " + updatedCaptured)
-      return updatedCaptured
-    })
+      const updatedCaptured = [...prevCaptured];
+      updatedCaptured[index] = searchSetting;
+      console.log("updated settings: " + updatedCaptured);
+      return updatedCaptured;
+    });
   }, [searchSetting]);
-  
+
   React.useEffect(() => {
     console.log("searchTerm:", searchTerm);
-    console.log("searchSetting:", searchSetting)
-    
-      setSearchTerms((prevSettings) => {
-        const updatedTerms = [...prevSettings]
-        updatedTerms[index] = searchTerm
-        console.log("updated terms: " + updatedTerms)
-        return updatedTerms
-      })
-    
-    
+    console.log("searchSetting:", searchSetting);
+
+    setSearchTerms((prevSettings) => {
+      const updatedTerms = [...prevSettings];
+      updatedTerms[index] = searchTerm;
+      console.log("updated terms: " + updatedTerms);
+      return updatedTerms;
+    });
   }, [searchTerm]);
 
   return (
     <Grid container spacing={2}>
       <Grid item xs={6}>
         <FormControl sx={{ width: "100%" }}>
-          <InputLabel htmlFor={`search-settings-${index}`}>Search Settings</InputLabel>
+          <InputLabel htmlFor={`search-settings-${index}`}>
+            Search Settings
+          </InputLabel>
           <Select
             value={searchSetting}
             onChange={onChangeSearchSetting}
