@@ -37,9 +37,9 @@ const Search = () => {
   const handleMovieSearch = () => {
     callApiSearchMovie()
       .then(res => {
-        console.log("callApiFindRecipe returned: ", res)
+        console.log("callApiSearchMovie returned: ", res)
         var parsed = JSON.parse(res.express);
-        console.log("callApiFindRecipe parsed: ", parsed[0])
+        console.log("callApiSearchMovie parsed: ", parsed[0])
         setSearchedMovies(parsed);
       });
   }

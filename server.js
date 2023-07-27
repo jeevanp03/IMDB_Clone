@@ -349,6 +349,30 @@ app.post('/api/searchMovie', (req, res) => {
   connection.end();
 });
 
+app.post("/api/findTrailer", (req, res) => {
+  let connection = mysql.createConnection(config);
+  let selectedMovie = req.body.selectedMovie;
+
+  let sql = `SELECT mp.movieTrailer 
+  FROM myPage mp
+  WHERE mp.movieTitle LIKE ?;`;
+  console.log(sql);
+  let data = ["%" + selectedMovie + "%"];
+  console.log(data);
+
+  connection.query(sql, data, (error, results, fields) => {
+    if (error) {
+      return console.error(error.message);
+    }
+
+    let string = JSON.stringify(results);
+    //let obj = JSON.parse(string);
+    res.send({ express: string });
+    console.log(typeof results);
+  });
+  connection.end();
+});
+
 
 app.listen(port, () => console.log(`Listening on port ${port}`)); //for the dev version
 //app.listen(port, '172.31.31.77'); //for the deployed version, specify the IP address of the server

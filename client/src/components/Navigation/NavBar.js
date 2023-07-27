@@ -39,7 +39,7 @@ function Navbar() {
     {
       id: "4",
       page: "Reccomendations",
-      path: "/Reccomendation",
+      path: "/MyPage",
     },
   ];
   const navigate = useNavigate();
