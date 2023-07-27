@@ -32,6 +32,7 @@ const Search = () => {
 
   const [searchedMovies, setSearchedMovies] = React.useState([]);
 
+  const serverURL = "";
   const handleMovieSearch = () => {
     callApiSearchMovie()
       .then(res => {

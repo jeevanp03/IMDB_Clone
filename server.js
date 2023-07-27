@@ -6,6 +6,7 @@ import path from "path";
 import { fileURLToPath } from "url";
 import bodyParser from "body-parser";
 import response from "express";
+import { mapProps } from "recompose";
 
 const __filename = fileURLToPath(import.meta.url);
 const __dirname = path.dirname(__filename);
@@ -87,54 +88,259 @@ app.post("/api/sendReview", (req, res) => {
   connection.end();
 });
 
-app.post('/api/searchMovie', (req, res) => {
-	let connection = mysql.createConnection(config);
-	let searchSettings = req.body.searchSettings;
-	let userID = req.body.userID;
-	console.log("Search Settings", searchSettings)
-	let data;
-	let sql;
-  let length = searchSettings.length;
-  if(length === 1){
-    var searchTerm = searchSettings[0].searchTerm;
-    var searchSetting = searchSetting[0].searchSetting;
-    sql = ``;
-    data = [searchTerm, searchSetting]
-  }else if(length === 2){
-    var searchTerms = [];
-    var settings = [];
-    sql = ``;
-    data = [searchTerm[0], searchSetting[0], searchTerm[1], searchSetting[1]]
-  }else{
-    var searchTerms = [];
-    var settings = [];
-    sql = ``;
-    data = [searchTerm[0], searchSetting[0], searchTerm[1], searchSetting[1], searchTerm[2], searchSetting[2]]
+const convertSearchSetting = (setting) => {
+  if (setting === 'byMovieName') {
+    return "m.name";
+  } else if (setting === 'byDirectorName') {
+    return "CONCAT(d.first_name, ' ', d.last_name)";
+  } else {
+    return "CONCAT(a.first_name, ' ', a.last_name)";
   }
-	// if(caloriesSearchTerm.trim() > 0){
-	// 	sql = `SELECT * FROM recipe WHERE calories <= ?`;
-	// 	data = [caloriesSearchTerm];
-	// }else{
-	// 	sql = 'SELECT * FROM recipe'
-	// 	data = [recipeID]
-	// }
-  	
-  	console.log(sql);
-  	 
-  	console.log(data);
+}
 
-  	connection.query(sql, data, (error, results, fields) => {
-    	if (error) {
-      		return console.error(error.message);
-    	}
+app.post('/api/searchMovie', (req, res) => {
+  let connection = mysql.createConnection(config);
+  let searchSettings = req.body.searchSettings;
+  let userID = req.body.userID;
+  console.log("Search Settings", searchSettings)
+  let data = [];
+  let sql = `SELECT m.name as movieTitle, GROUP_CONCAT(DISTINCT CONCAT(d.first_name, ' ', d.last_name)) as directorName, GROUP_CONCAT(DISTINCT r.reviewContent) as reviewContent, CAST(AVG(r.reviewScore) AS DECIMAL(10,2)) as averageScore
+  FROM movies m
+  LEFT JOIN review r ON r.movieID = m.id
+  JOIN movies_directors md ON md.movie_id = m.id
+  JOIN directors d ON md.director_id = d.id
+  JOIN roles ro ON ro.movie_id = m.id
+  JOIN actors a ON ro.actor_id = a.id 
+  WHERE 1 = 1`;
+  let length = searchSettings.length;
 
-    	let string = JSON.stringify(results);
-    	//let obj = JSON.parse(string);
-    	res.send({ express: string });
-    	console.log(typeof results);
-  	});
-  	connection.end();
+  const nonFalsyKeysList = searchSettings.map((searchSetting) => {
+    return Object.keys(searchSetting).filter((key) => searchSetting[key]);
+  });
+
+  if (length === 1) {
+    console.log("length of settings is 1")
+    var searchTerm = searchSettings[0].searchTerm;
+    if (searchTerm.trim().length <= 0) {
+      console.log("no search term, pulling all movies from database");
+      data.push(userID);
+    } else {
+      var searchSetting = nonFalsyKeysList[0][0];
+      console.log("searching with one term and setting");
+      var setting = convertSearchSetting(searchSetting);
+      if (searchTerm.trim().length === 1) {
+        sql = sql + ` AND ${setting} LIKE ?`;
+        data.push(searchTerm.trim() + "%");
+      } else {
+        sql = sql + ` AND ${setting} LIKE ?`;
+        data.push("%" + searchTerm.trim() + "%");
+      }
+      console.log("settings are length 1", sql);
+    }
+  } else if (length === 2) {
+    console.log("length of settings is 2")
+    var searchTerms = [searchSettings[0].searchTerm, searchSettings[1].searchTerm]
+    var settings = [nonFalsyKeysList[0][0], nonFalsyKeysList[1][0]]
+    var setting1 = convertSearchSetting(settings[0])
+    var setting2 = convertSearchSetting(settings[1])
+    var searchTerm1 = searchTerms[0]
+    var searchTerm2 = searchTerms[1]
+    if (setting1 === setting2) {
+      console.log("the 2 settings are the same")
+      if (searchTerm1.trim().length === 0) {
+        console.log("the first search term is empty")
+        if (searchTerm2.trim().length === 1) {
+          sql = sql + ` AND ${setting2} LIKE ?`;
+          data.push(searchTerm2.trim() + "%");
+        } else {
+          sql = sql + ` AND ${setting2} LIKE ?`;
+          data.push("%" + searchTerm2.trim() + "%");
+        }
+      } else if (searchTerm2.trim().length === 0) {
+        console.log("the second search term is empty")
+        if (searchTerm1.trim().length === 1) {
+          sql = sql + ` AND ${setting1} LIKE ?`;
+          data.push(searchTerm1.trim() + "%");
+        } else {
+          sql = sql + ` AND ${setting1} LIKE ?`;
+          data.push("%" + searchTerm1.trim() + "%");
+        }
+      } else if (searchTerm1.trim().length > 0 && searchTerm2.trim().length > 0) {
+        console.log("neither are empty")
+        for (var i = 0; i < settings.length; i++) {
+          var curTerm = searchTerms[i]
+          var curSetting = settings[i]
+          if (searchTerm1.trim().length === 1) {
+            sql = sql + ` AND ${curSetting} LIKE ?`;
+            data.push(curTerm.trim() + "%");
+          } else {
+            sql = sql + ` OR ${curSetting} LIKE ?`;
+            data.push("%" + curTerm.trim() + "%");
+          }
+        }
+      } else if (searchTerm1.trim().length === 0 && searchTerm2.trim().length === 0) {
+        console.log("both terms are empty, searching for all movies: ", setting1)
+      }
+    } else {
+      console.log("neither settings are equal")
+      if (searchTerm1.trim().length === 0) {
+        console.log("the first search term is empty")
+        if (searchTerm2.trim().length === 1) {
+          sql = sql + ` AND ${setting2} LIKE ?`;
+          data.push(searchTerm2.trim() + "%");
+        } else {
+          sql = sql + ` AND ${setting2} LIKE ?`;
+          data.push("%" + searchTerm2.trim() + "%");
+        }
+      } else if (searchTerm2.trim().length === 0) {
+        console.log("the second search term is empty")
+        if (searchTerm1.trim().length === 1) {
+          sql = sql + ` AND ${setting1} LIKE ?`;
+          data.push(searchTerm1.trim() + "%");
+        } else {
+          sql = sql + ` AND ${setting1} LIKE ?`;
+          data.push("%" + searchTerm1.trim() + "%");
+        }
+      } else if (searchTerm1.trim().length > 0 && searchTerm2.trim().length > 0) {
+        console.log("neither are empty")
+        for (var i = 0; i < settings.length; i++) {
+          var curTerm = searchTerms[i]
+          var curSetting = settings[i]
+          if (searchTerm1.trim().length === 1) {
+            sql = sql + ` AND ${curSetting} LIKE ?`;
+            data.push(curTerm.trim() + "%");
+          } else {
+            sql = sql + ` AND ${curSetting} LIKE ?`;
+            data.push("%" + curTerm.trim() + "%");
+          }
+        }
+      } else if (searchTerm1.trim().length === 0 && searchTerm2.trim().length === 0) {
+        console.log("both terms are empty, searching for all movies: ", setting1)
+      }
+    }
+  } else {
+    console.log("the settings are different");
+    if (searchTerm1.trim().length === 0 && searchTerm2.trim() === 0) {
+      console.log("only search term 3 is non empty");
+      if (searchTerm3.trim().length === 1) {
+        sql = sql + ` AND ${setting3} LIKE ?`;
+        data.push(searchTerm3.trim() + "%");
+      } else {
+        sql = sql + ` AND ${setting3} LIKE ?`;
+        data.push("%" + searchTerm3.trim() + "%");
+      }
+    } else if (searchTerm2.trim().length === 0 && searchTerm3.trim === 0) {
+      console.log("only search term 2 is non empty");
+      if (searchTerm2.trim().length === 1) {
+        sql = sql + ` AND ${setting2} LIKE ?`;
+        data.push(searchTerm2.trim() + "%");
+      } else {
+        sql = sql + ` AND ${setting2} LIKE ?`;
+        data.push("%" + searchTerm2.trim() + "%");
+      }
+    } else if (searchTerm2.trim().length === 0 && searchTerm3.trim === 0) {
+      console.log("only search term 1 is non empty");
+      if (searchTerm1.trim().length === 1) {
+        sql = sql + ` AND ${setting11} LIKE ?`;
+        data.push(searchTerm1.trim() + "%");
+      } else {
+        sql = sql + ` AND ${setting1} LIKE ?`;
+        data.push("%" + searchTerm1.trim() + "%");
+      }
+    } else if (searchTerm1.trim().length === 0) {
+      console.log("only search term 1 is empty");
+      if (searchTerm2.trim().length === 1) {
+        sql = sql + ` AND ${setting2} LIKE ?`;
+        data.push(searchTerm2.trim() + "%");
+      } else {
+        sql = sql + ` AND ${setting2} LIKE ?`;
+        data.push("%" + searchTerm2.trim() + "%");
+      }
+      if (searchTerm3.trim().length === 1) {
+        sql = sql + ` OR ${setting3} LIKE ?`;
+        data.push(searchTerm3.trim() + "%");
+      } else {
+        sql = sql + ` OR ${setting3} LIKE ?`;
+        data.push("%" + searchTerm3.trim() + "%");
+      }
+    } else if (searchTerm2.trim().length === 0) {
+      console.log("only search term 2 is empty");
+      if (searchTerm1.trim().length === 1) {
+        sql = sql + ` AND ${setting1} LIKE ?`;
+        data.push(searchTerm1.trim() + "%");
+      } else {
+        sql = sql + ` AND ${setting1} LIKE ?`;
+        data.push("%" + searchTerm1.trim() + "%");
+      }
+      if (searchTerm3.trim().length === 1) {
+        sql = sql + ` AND ${setting3} LIKE ?`;
+        data.push(searchTerm3.trim() + "%");
+      } else {
+        sql = sql + ` AND ${setting3} LIKE ?`;
+        data.push("%" + searchTerm3.trim() + "%");
+      }
+    } else if (searchTerm3.trim().length === 0) {
+      console.log("only search term 3 is empty");
+      if (searchTerm1.trim().length === 1) {
+        sql = sql + ` AND ${setting1} LIKE ?`;
+        data.push(searchTerm1.trim() + "%");
+      } else {
+        sql = sql + ` AND ${setting1} LIKE ?`;
+        data.push("%" + searchTerm1.trim() + "%");
+      }
+      if (searchTerm2.trim().length === 1) {
+        sql = sql + ` AND ${setting2} LIKE ?`;
+        data.push(searchTerm2.trim() + "%");
+      } else {
+        sql = sql + ` AND ${setting2} LIKE ?`;
+        data.push("%" + searchTerm2.trim() + "%");
+      }
+    } else if (searchTerm1.trim().length > 0 && searchTerm2.trim().length > 0 && searchTerm3.trim().length > 0) {
+      console.log("none are empty");
+      if (searchTerm1.trim().length === 1) {
+        sql = sql + ` AND ${setting1} LIKE ?`;
+        data.push(searchTerm1.trim() + "%");
+      } else {
+        sql = sql + ` AND ${setting1} LIKE ?`;
+        data.push("%" + searchTerm1.trim() + "%");
+      }
+      if (searchTerm2.trim().length === 1) {
+        sql = sql + ` OR ${setting2} LIKE ?`;
+        data.push(searchTerm2.trim() + "%");
+      } else {
+        sql = sql + ` OR ${setting2} LIKE ?`;
+        data.push("%" + searchTerm2.trim() + "%");
+      }
+      if (searchTerm3.trim().length === 1) {
+        sql = sql + ` OR ${setting3} LIKE ?`;
+        data.push(searchTerm3.trim() + "%");
+      } else {
+        sql = sql + ` OR ${setting3} LIKE ?`;
+        data.push("%" + searchTerm3.trim() + "%");
+      }
+    }
+  }
+  
+
+  sql = sql + ` GROUP BY m.name, d.first_name, d.last_name`
+
+  console.log(sql);
+
+  console.log(data);
+
+  connection.query(sql, data, (error, results, fields) => {
+    if (error) {
+      return console.error(error.message);
+    }
+
+    let string = JSON.stringify(results);
+    //let obj = JSON.parse(string);
+    res.send({ express: string });
+    console.log(typeof results);
+  });
+  connection.end();
 });
+
 
 app.listen(port, () => console.log(`Listening on port ${port}`)); //for the dev version
 //app.listen(port, '172.31.31.77'); //for the deployed version, specify the IP address of the server
