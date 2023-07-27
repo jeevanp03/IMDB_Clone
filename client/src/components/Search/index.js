@@ -1,6 +1,7 @@
 import React from "react";
 import NavBar from "../Navigation/NavBar";
 import SearchBar from "./SearchBar";
+import DataTable from "./DataTable";
 import { createTheme, ThemeProvider } from "@mui/material/styles";
 import CssBaseline from "@mui/material/CssBaseline";
 import Grid from "@mui/material/Grid";
@@ -55,7 +56,7 @@ const Search = () => {
         "Content-Type": "application/json",
       },
       body: JSON.stringify({
-        searchSettings : searchSettings
+        searchSettings: searchSettings
       })
     });
     const body = await response.json();
@@ -309,6 +310,16 @@ const Search = () => {
                 Show Settings
               </Button>
             )}
+          </Paper>
+        </Grid>
+        <Grid
+          item
+          xs={20}
+          md={12}
+          sx={{ marginLeft: "6px", marginRight: "6px" }}
+        >
+          <Paper elevation={1} sx={{ padding: 2 }}>
+            <DataTable searchedMovies = {searchedMovies} />
           </Paper>
         </Grid>
       </Grid>

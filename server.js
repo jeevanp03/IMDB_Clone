@@ -169,7 +169,7 @@ app.post('/api/searchMovie', (req, res) => {
         console.log("neither are empty")
         for (var i = 0; i < settings.length; i++) {
           var curTerm = searchTerms[i]
-          var curSetting = settings[i]
+          var curSetting = convertSearchSetting(settings[i])
           if (searchTerm1.trim().length === 1) {
             sql = sql + ` AND ${curSetting} LIKE ?`;
             data.push(curTerm.trim() + "%");
@@ -205,7 +205,7 @@ app.post('/api/searchMovie', (req, res) => {
         console.log("neither are empty")
         for (var i = 0; i < settings.length; i++) {
           var curTerm = searchTerms[i]
-          var curSetting = settings[i]
+          var curSetting = convertSearchSetting(settings[i])
           if (searchTerm1.trim().length === 1) {
             sql = sql + ` AND ${curSetting} LIKE ?`;
             data.push(curTerm.trim() + "%");
@@ -219,7 +219,15 @@ app.post('/api/searchMovie', (req, res) => {
       }
     }
   } else {
-    console.log("the settings are different");
+    console.log("there are 3 settings");
+    var searchTerms = [searchSettings[0].searchTerm, searchSettings[1].searchTerm, searchSettings[2].searchTerm]
+    var settings = [nonFalsyKeysList[0][0], nonFalsyKeysList[1][0], nonFalsyKeysList[2][0]]
+    var setting1 = convertSearchSetting(settings[0])
+    var setting2 = convertSearchSetting(settings[1])
+    var setting3 = convertSearchSetting(settings[2])
+    var searchTerm1 = searchTerms[0]
+    var searchTerm2 = searchTerms[1]
+    var searchTerm3 = searchTerms[2]
     if (searchTerm1.trim().length === 0 && searchTerm2.trim() === 0) {
       console.log("only search term 3 is non empty");
       if (searchTerm3.trim().length === 1) {
