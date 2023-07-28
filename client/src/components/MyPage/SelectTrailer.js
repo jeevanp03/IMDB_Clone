@@ -13,7 +13,7 @@ const SelectTrailer = ({ selectedMovie, changeMovie }) => {
   ];
 
   return (
-    <FormControl /*sx={{ width: '50%' }*/}>
+    <FormControl sx={{ width: '100%' }}>
       <InputLabel id="movieSelectLabel">Select a Movie</InputLabel>
       <Select
         labelId="movieSelectLabel"

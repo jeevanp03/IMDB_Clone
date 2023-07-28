@@ -67,24 +67,18 @@ const MyPage = () => {
   return (
     <ThemeProvider theme={darkTheme}>
       <CssBaseline />
-      <Grid container spacing={2} justify="center" alignItems="center">
+      <Grid container spacing={2} justify="center" alignItems="flex-start"> {/* Adjusted alignItems */}
         <NavBar />
-        <Grid item xs={12} md={6}>
+        <Grid item xs={12} md={6} sx={{ order: 2 }}>
+          {selectedTrailer && (
+            <Paper elevation={1} sx={{ padding: 2, marginLeft: "10px", border: "2px solid #333", borderRadius: "8px", boxShadow: "4px 4px 8px rgba(0, 0, 0, 0.2)" }}>
+              <iframe width="560" height="315" src= {selectedTrailer} title="YouTube video player" frameborder="0" allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture; web-share" allowfullscreen></iframe>
+            </Paper>
+          )}
+        </Grid>
+        <Grid item xs={12} md={6} sx={{ position: "relative", zIndex: 1, order: 1 }}>
           <Paper elevation={1} sx={{ padding: 2 }}>
             <SelectTrailer selectedMovie={selectedMovie} changeMovie={changeMovie} />
-          </Paper>
-        </Grid>
-        <Grid item xs={12} md={6}>
-          <Paper elevation={1} sx={{ padding: 2, marginLeft: "10px", border: "2px solid #333", borderRadius: "8px", boxShadow: "4px 4px 8px rgba(0, 0, 0, 0.2)" }}>
-            {selectedTrailer && (
-              <iframe
-                src={selectedTrailer}
-                title="Selected Trailer"
-                width="100%"
-                height="400"
-                allowFullScreen
-              />
-            )}
           </Paper>
         </Grid>
       </Grid>
