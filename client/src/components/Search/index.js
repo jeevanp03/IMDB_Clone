@@ -7,6 +7,7 @@ import CssBaseline from "@mui/material/CssBaseline";
 import Grid from "@mui/material/Grid";
 import Paper from "@mui/material/Paper";
 import Button from "@mui/material/Button";
+import Typography from "@mui/material/Typography";
 
 const darkTheme = createTheme({
   palette: {
@@ -229,6 +230,11 @@ const Search = () => {
       <CssBaseline />
       <Grid container spacing={2} justify="center" alignItems="center">
         <NavBar />
+        <Grid item xs={12} md={12} sx={{ margin: "12px" }}>
+          <Typography variant="body1" align="center" gutterBottom>
+            This page is dedicated to help you find any movie in our IMDBJ database. You are able to filter by movie name, director name, actor name or a combination of the three!
+          </Typography>
+        </Grid>
         <Grid
           item
           xs={20}
@@ -319,7 +325,7 @@ const Search = () => {
           sx={{ marginLeft: "6px", marginRight: "6px" }}
         >
           <Paper elevation={1} sx={{ padding: 2 }}>
-            <DataTable searchedMovies = {searchedMovies} />
+            <DataTable searchedMovies={searchedMovies} />
           </Paper>
         </Grid>
       </Grid>

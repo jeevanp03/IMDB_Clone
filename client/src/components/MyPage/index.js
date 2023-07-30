@@ -5,6 +5,7 @@ import { createTheme, ThemeProvider } from "@mui/material/styles";
 import CssBaseline from "@mui/material/CssBaseline";
 import Grid from "@mui/material/Grid";
 import Paper from "@mui/material/Paper";
+import Typography from "@mui/material/Typography"; 
 
 const darkTheme = createTheme({
   palette: {
@@ -67,12 +68,18 @@ const MyPage = () => {
   return (
     <ThemeProvider theme={darkTheme}>
       <CssBaseline />
-      <Grid container spacing={2} justify="center" alignItems="flex-start"> {/* Adjusted alignItems */}
-        <NavBar />
+      <NavBar />
+      <Typography variant="h4" align="center" gutterBottom>
+        Your Reccomdations
+      </Typography>
+      <Typography variant="body1" align="center" gutterBottom>
+        This page is dedicated to help you find new movies! Select a movie from the dropdown below to watch a trailer for a movie we think you will love!
+      </Typography>
+      <Grid container spacing={2} justify="center" alignItems="flex-start">
         <Grid item xs={12} md={6} sx={{ order: 2 }}>
           {selectedTrailer && (
             <Paper elevation={1} sx={{ padding: 2, marginLeft: "10px", border: "2px solid #333", borderRadius: "8px", boxShadow: "4px 4px 8px rgba(0, 0, 0, 0.2)" }}>
-              <iframe width="560" height="315" src= {selectedTrailer} title="YouTube video player" frameborder="0" allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture; web-share" allowfullscreen></iframe>
+              <iframe width="560" height="315" src={selectedTrailer} title="YouTube video player" frameborder="0" allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture; web-share" allowfullscreen></iframe>
             </Paper>
           )}
         </Grid>
@@ -87,4 +94,3 @@ const MyPage = () => {
 };
 
 export default MyPage;
-
