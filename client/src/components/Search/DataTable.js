@@ -10,7 +10,7 @@ import {
 } from '@mui/material';
 
 const wrapText = (text, chunkSize) => {
-  if (!text) return []; // Return an empty array if the text is null or undefined
+  if (!text) return []; 
 
   const regex = new RegExp(`.{1,${chunkSize}}`, 'g');
   return text.match(regex) || [];
@@ -25,7 +25,7 @@ const DataTable = ({ searchedMovies }) => {
             <TableCell style={{ width: '25%' }}>Movie Title</TableCell>
             <TableCell style={{ width: '25%' }}>Director Name</TableCell>
             <TableCell style={{ width: '25%' }}>Review Content</TableCell>
-            <TableCell style={{ width: '25%' }}>Review Score</TableCell>
+            <TableCell style={{ width: '25%' }}>Average Score</TableCell>
           </TableRow>
         </TableHead>
         <TableBody>

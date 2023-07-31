@@ -38,7 +38,7 @@ function Navbar() {
     },
     {
       id: "4",
-      page: "Reccomendations",
+      page: "Recomendations",
       path: "/MyPage",
     },
   ];
