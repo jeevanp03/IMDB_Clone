@@ -328,7 +328,7 @@ app.post('/api/searchMovie', (req, res) => {
       }
     }
   }
-  
+
 
   sql = sql + ` GROUP BY m.name, d.first_name, d.last_name`
 
@@ -372,6 +372,48 @@ app.post("/api/findTrailer", (req, res) => {
   });
   connection.end();
 });
+
+app.post("/api/findReviews", (req, res) => {
+  let connection = mysql.createConnection(config);
+  let selectedMovie = req.body.selectedMovie;
+
+  let sql1 = `SELECT r.reviewContent as reviewContents, r.reviewScore
+    FROM myPage mp
+    JOIN movies m ON m.name = mp.movieTitle
+    JOIN review r ON m.id = r.movieID
+    WHERE mp.movieTitle LIKE ?;`;
+
+  let data1 = ["%" + selectedMovie + "%"];
+
+  let sql2 = `SELECT CAST(AVG(r.reviewScore) AS DECIMAL(10,2)) as averageScore
+    FROM myPage mp
+    JOIN movies m ON m.name = mp.movieTitle
+    JOIN review r ON m.id = r.movieID
+    WHERE mp.movieTitle LIKE ?
+    GROUP BY r.movieID;`;
+  let data2 = ["%" + selectedMovie + "%"];
+
+  connection.query(sql1, data1, (error1, results1, fields1) => {
+    if (error1) {
+      connection.end();
+      return console.error(error1.message);
+    }
+
+    connection.query(sql2, data2, (error2, results2, fields2) => {
+      connection.end();
+
+      if (error2) {
+        return console.error(error2.message);
+      }
+
+      let string1 = JSON.stringify(results1);
+      let string2 = JSON.stringify(results2);
+
+      res.send({ express1: string1, express2: string2 });
+    });
+  });
+});
+
 
 
 app.listen(port, () => console.log(`Listening on port ${port}`)); //for the dev version
