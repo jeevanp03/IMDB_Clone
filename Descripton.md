@@ -1,1 +1,0 @@
-IMDD_Clone was created as the final project of MSCI 245 (intro to full stack development). This project was used to teach about intro to programming principles, Javascript, Node.js, React.js, Express middleware, and mySQL
